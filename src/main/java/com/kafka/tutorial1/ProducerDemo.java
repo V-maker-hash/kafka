@@ -1,14 +1,17 @@
 package com.kafka.tutorial1;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
 public class ProducerDemo {
     public static void main(String[] args) {
+
+        Logger logger = LoggerFactory.getLogger(ProducerDemo.class);
+
         String bootstrapServers = "127.0.0.1:9092";
 
         //create Producer properties
@@ -20,15 +23,31 @@ public class ProducerDemo {
         //create the producer
         KafkaProducer<String, String> stringStringKafkaProducer = new KafkaProducer<>(properties);
 
-        //create a producer record
-        ProducerRecord<String, String> record = new ProducerRecord<>("first_topic", "hello world!");
+        for (int i = 0; i < 100; i++) {
+            //create a producer record
+            ProducerRecord<String, String> record = new ProducerRecord<>("first_topic", i + " hello world!");
 
-        //send data
-        stringStringKafkaProducer.send(record);
-
+            //send data
+            stringStringKafkaProducer.send(record, new Callback() {
+                @Override
+                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                    if (e == null) {
+                        logger.info("Received new metadata: \n" +
+                                        "Topic: {},\n" +
+                                        "Partition: {},\n" +
+                                        "Offset: {}, \n" +
+                                        "Timestamp: {}",
+                                recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset(), recordMetadata.timestamp());
+                    } else {
+                        logger.error("Error while producing", e);
+                    }
+                }
+            });
+        }
         //flush data
         stringStringKafkaProducer.flush();
         //flush and send data
         stringStringKafkaProducer.close();
+
     }
 }
