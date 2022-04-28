@@ -1,7 +1,6 @@
 package com.kafka.tutorial2;
 
 import java.util.Queue;
-import java.util.Random;
 
 import static com.kafka.tutorial2.TwitterProducer.LINKED_BLOCKING_QUEUE;
 
