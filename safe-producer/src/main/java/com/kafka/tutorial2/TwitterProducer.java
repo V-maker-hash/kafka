@@ -20,8 +20,8 @@ public class TwitterProducer {
         KafkaProducer<String, String> producer = createProducer();
 
         for (String newRecord : LINKED_BLOCKING_QUEUE) {
-            Thread.sleep(1000);
-            producer.send(new ProducerRecord<>("twitter_topic", newRecord),
+            Thread.sleep(5000);
+            producer.send(new ProducerRecord<>("twitter_tweets", newRecord),
                     new Callback() {
                         @Override
                         public void onCompletion(RecordMetadata recordMetadata, Exception e) {
