@@ -1,5 +1,6 @@
 package com.kafka.tutorial3;
 
+import com.google.gson.JsonParser;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -17,7 +18,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +42,9 @@ public class ElasticSearchConsumer {
                 logger.info("Received : {}", record);
                 String value = record.value();
                 logger.info("Record value : {}", value);
-                Object o = JSONObject.stringToValue(value);
-                IndexRequest indexRequest = new IndexRequest("twitter", "tweets")
-                        .source(record, XContentType.JSON);
+                String asString = new JsonParser().parseString(value).getAsJsonObject().get("JSON1").getAsString();
+                IndexRequest indexRequest = new IndexRequest("twitter", "tweets", asString)
+                        .source(value, XContentType.JSON);
                 IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
                 String id = indexResponse.getId();
                 logger.info("ID = {}", id);
